@@ -1,0 +1,41 @@
+@keyframes dotAnimation {
+  0%,
+  20% {
+    opacity: 0;
+  }
+  20%,
+  85% {
+    opacity: 1;
+  }
+  85%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.loader {
+  display: inline-block;
+  margin-left: 3px;
+}
+
+.animate-dot {
+  display: inline-block;
+  width: 2px;
+  height: 2px;
+  background-color: #fff;
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: dotAnimation 2s infinite;
+}
+
+.dot1 {
+  animation-delay: 0.1s;
+}
+
+.dot2 {
+  animation-delay: 0.2s;
+}
+
+.dot3 {
+  animation-delay: 0.3s;
+}

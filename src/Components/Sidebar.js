@@ -44,7 +44,7 @@ function Sidebar() {
   }
 
   const truncateString = (str, len = 30) => {
-    if (!str) return "this is a test message";
+    if (!str) return "click to start a conversation";
     if (str.length <= len) return str;
     return str.slice(0, len) + '...';
   }

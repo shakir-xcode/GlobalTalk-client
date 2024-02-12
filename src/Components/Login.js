@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../Images/logo.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { baseURI } from "../api/appApi";
 
 function Login() {
   console.log('LOGIN RENDERED...');
+  const userData = JSON.parse(localStorage.getItem("userData"));
 
   const [showlogin, setShowLogin] = useState(false);
   const [data, setData] = useState({
@@ -23,6 +24,13 @@ function Login() {
   const [signInStatus, setSignInStatus] = React.useState("");
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userData) {
+      console.log("User  Authenticated");
+      navigate("/app/welcome");
+    }
+  }, [])
 
   console.log('USER DATA ... ', data);
 
@@ -84,7 +92,7 @@ function Login() {
       setLoading(false);
     } catch (error) {
       console.log('ERROR === ', error);
-      if (error.response.status === 405) {
+      if (error?.response.status === 405) {
         // console.log('STATUS L 405');
         setSignInStatus({
           msg: error.response.data.message,

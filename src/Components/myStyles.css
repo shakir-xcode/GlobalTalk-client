@@ -3,6 +3,10 @@ input:focus {
   outline: none;
 }
 
+.polygon {
+  clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%, 0 42%);
+}
+
 .bb {
   border: 1px solid black;
 }
