@@ -17,8 +17,8 @@ module.exports = {
         // "background-white": "var(--background)",
       },
       backgroundImage: {
-        'chat-bg-light': "url('./Images/chat_bg1.png')",
-        'chat-bg-dark': "url('./Images/chat_bg2.png')",
+        // 'chat-bg-light': "url('./Images/chat_bg1.png')",
+        // 'chat-bg-dark': "url('./Images/chat_bg2.png')",
 
       }
     },

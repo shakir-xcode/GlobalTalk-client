@@ -14,7 +14,7 @@ const FileUploadIcon = ({ setSelectedFile }) => {
         <div>
 
             <input type="file" name="file" id="actual-btn" hidden onChange={handleFileChange} />
-            <label htmlFor="actual-btn"><img className=" w-8 mt-1 mr-6" src={fileUpload_Icon} alt="file upload" /></label>
+            <label htmlFor="actual-btn" className="cursor-pointer " title="upload"><img className=" w-7 mt-1 mr-6" src={fileUpload_Icon} alt="file upload" /></label>
 
         </div>
     );

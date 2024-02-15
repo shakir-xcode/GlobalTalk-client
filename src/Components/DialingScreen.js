@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { getSocket } from "../api/socket";
+// import { getSocket } from "../api/socket";
 import profilePlaceholder from "../Images/profile_placeholder.jpg";
 import Dots from "./animations/Dots";
 import declineCall from "../Images/decline_call.svg";
@@ -13,8 +13,8 @@ import declineCall from "../Images/decline_call.svg";
 //   return <div>CallingScreen</div>;
 // };
 
-function DialingScreen({ endCall }) {
-  const callerName = "John doe";
+function DialingScreen({ endCall, receiverName }) {
+  // const callerName = "John doe";
   const callerImage = profilePlaceholder;
   return (
     <div className="fixed inset-0 z-20 h-screen bg-gray-900 flex flex-col items-center justify-center text-white">
@@ -22,7 +22,7 @@ function DialingScreen({ endCall }) {
         <div className="w-[120px] bg-gray-700 rounded-full mb-2 flex items-center justify-center">
           <img src={profilePlaceholder} alt="profile" className="rounded-full " />
         </div>
-        <p className="font-semibold text-xl">{callerName}</p>
+        <p className="font-semibold text-xl">{receiverName}</p>
         <div className="font-thin">Dialling<Dots /></div>
 
         {/* <span>01:43</span> This should be dynamic to show the actual call duration */}
@@ -31,8 +31,8 @@ function DialingScreen({ endCall }) {
       <div className="flex flex-col gap-1 mt-5 items-center ">
         <button
           onClick={endCall}
-          className="w-12 bg-red-500 p-4 rounded-full hover:bg-red-400">
-          {/* Replace with phone hangup icon */}
+          title="Hang up"
+          className="w-12 bg-red-500 p-3.5 rounded-full hover:bg-red-400">
           <img src={declineCall} />
         </button>
 

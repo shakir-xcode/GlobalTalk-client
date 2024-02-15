@@ -95,3 +95,23 @@ input:focus {
   flex: 1;
   justify-content: space-evenly;
 }
+
+@keyframes custom-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.custom-anim-spin {
+  animation: spin linear infinite;
+}
+
+#spin-container-1 {
+  animation-duration: 3s;
+  animation-direction: reverse;
+}
+#spin-container-2 {
+  animation-duration: 3s;
+}
+#spin-container-3 {
+  animation-duration: 5s;
+}

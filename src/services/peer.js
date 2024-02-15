@@ -1,3 +1,4 @@
+
 class PeerService {
     constructor() {
         if (!this.peer) {
@@ -38,4 +39,8 @@ class PeerService {
     }
 }
 
-export default new PeerService();
+
+const getPeer = () => new PeerService();
+
+
+export default getPeer;

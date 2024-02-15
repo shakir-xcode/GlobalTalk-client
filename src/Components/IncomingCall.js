@@ -1,9 +1,9 @@
 import React from 'react'
 import profilePlaceholder from "../Images/profile_placeholder.jpg";
 
-const IncomingCall = ({ endCall, answerCall }) => {
-  const callerName = "John doe";
-  const callerNumber = 700601734734;
+const IncomingCall = ({ endCall, answerCall, callerName }) => {
+  // const callerName = "John doe";
+  const callerNumber = 7006017347;
   const callerImage = profilePlaceholder;
 
 

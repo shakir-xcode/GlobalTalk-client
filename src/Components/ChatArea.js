@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import MessageSelf from "./MessageSelf";
 import MessageOthers from "./MessageOthers";
 import Toaster from "./Toaster";
@@ -18,15 +18,25 @@ import IncomingCall from "./IncomingCall";
 import CallingScreen from "./DialingScreen";
 import DialingScreen from "./DialingScreen";
 import video_call_icon from "../Images/video_call.svg"
-import peer from "../services/peer";
+import getPeer from "../services/peer";
 import Room from "./Room";
+import voice_call_icon from "../Images/accept_call.svg";
+import { VIDEO, VOICE, SCREEN_SHARE } from "../utility/constants";
+import screen_share_icon from "../Images/screen_share_icon.svg";
 
 const ENDPOINT = "http://localhost:4000";
 
 let socket;
-
+let peer = null;
 function ChatArea() {
-  // console.log('CHAT AREA RENDERED: ', socket)
+  // let peer = getPeer();
+
+  if (!peer?.peer || peer?.peer.connectionState === "closed") {
+    // console.log('NEW PEER CREATED... ')
+    peer = getPeer();
+  }
+
+  // console.log('CHAT AREA RENDERED: ')
   const [selectedFile, setSelectedFile] = useState(null);
 
   // console.log('SELECTED FILE ---------------', selectedFile);
@@ -41,7 +51,10 @@ function ChatArea() {
   const [botResponse, setBotResponse] = useState(null);
   const [socketConnectionStatus, setSocketConnectionStatus] = useState(false);
 
-  const [dialling, setDialling] = useState(false);
+
+  // const [peer, setPeer] = useState(getPeer());
+  const CALL_TYPE = useRef(null);
+  // const isVideoCall = useRef(false);
   const [incoming, setIncoming] = useState(false);
   const [confrence, setConfrence] = useState(false);
   const [myStream, setMyStream] = useState(null)
@@ -92,7 +105,7 @@ function ChatArea() {
   const sendMessage = () => {
     sendMessageRequest(messageContent, chat_id)
       .then(({ data }) => {
-        console.log('RECEIVED MY SAVED MESSAGE: ', data)
+        // console.log('RECEIVED MY SAVED MESSAGE: ', data)
         setAllMessages([...allMessages, data]);
         if (!isBotChat)
           socket.emit("new message", data);
@@ -148,35 +161,62 @@ function ChatArea() {
       }
     })
     return () => {
-      stopStream()
+      // stopStream()
     }
   }, []);
 
+
+
+
   //  --------------- FOR webRTC --------------------
-  let OFFER;
+
+  const endCall = () => {
+    socket.emit('end:call')
+    stopStream();
+    setConfrence(false);
+    setIncoming(false);
+  }
+
+  const handleEndCall = () => {
+    console.log('call ended..')
+    stopStream();
+    setConfrence(false);
+    setIncoming(false);
+  }
+
   const handleCallUser = useCallback(async () => {
+    console.log('CALL TYPE: ', CALL_TYPE.current)
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: true,
-      video: true,
+      video: CALL_TYPE.current === VIDEO ? true : false,
     });
+
     const offer = await peer.getOffer();
-    socket.emit("user:call", { offer });
+    socket.emit("user:call", { offer, CALL_TYPE: CALL_TYPE.current });
     setMyStream(stream);
   }, [socket]);
+
   const handleIncommingCall = useCallback(
-    //user knows who is the caller
-    async ({ offer }) => {
-      OFFER = offer;
+    async ({ offer, callType }) => {
       // setRemoteSocketId(from);
+      // isVideoCall.current = isVideo;
+      CALL_TYPE.current = callType
+      console.log('INCOMING....', CALL_TYPE.current)
       setIncoming(true)
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true,
-      });
-      setMyStream(stream);
-      console.log(`Incoming Call`, offer);
-      const ans = await peer.getAnswer(offer);
-      socket.emit("call:accepted", { ans });
+      try {
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: callType === VIDEO ? true : false,
+        });
+        setMyStream(stream);
+        console.log(`Incoming Call`, offer);
+        const ans = await peer.getAnswer(offer);
+        socket.emit("call:accepted", { ans });
+
+      } catch (error) {
+        console.log('Error occured: ', error)
+      }
     },
     [socket]
   );
@@ -203,16 +243,24 @@ function ChatArea() {
     socket.emit("peer:nego:needed", { offer });
   }, [socket]);
 
+
   useEffect(() => {
+    console.log('HERE----------------------------')
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
-      console.log("GOT TRACKS!!");
+      console.log("GOT TRACKS!-----------------!");
       setRemoteStream(remoteStream[0]);
-      // setIncoming(false);
-      // setDialling(false);
-      // setConfrence(true);
     });
-  }, [])
+
+    return () => {
+      console.log("Removed listener");
+      peer.peer.removeEventListener("track", async (ev) => {
+        const remoteStream = ev.streams;
+        console.log("Removed listener");
+        setRemoteStream(remoteStream[0]);
+      });
+    }
+  }, [peer])
 
   useEffect(() => {
     peer.peer.addEventListener("negotiationneeded", handleNegoNeeded);
@@ -232,7 +280,7 @@ function ChatArea() {
   const handleNegoNeedFinal = useCallback(async ({ ans }) => {
     await peer.setLocalDescription(ans);
     setIncoming(false)
-    setDialling(false);
+    // setDialling(false);
     setConfrence(true);
   }, []);
 
@@ -240,9 +288,10 @@ function ChatArea() {
   const answerCall = async () => {
     // const ans = await peer.getAnswer(OFFER);
     // socket.emit("call:accepted", { ans });
+    console.log('CALL ANSWERED...')
     sendStreams();
     setIncoming(false);
-    setDialling(false);
+    // setDialling(false);
     setConfrence(true);
   }
 
@@ -252,7 +301,7 @@ function ChatArea() {
     socket.on("call:accepted", handleCallAccepted);
     socket.on("peer:nego:needed", handleNegoNeedIncomming);
     socket.on("peer:nego:final", handleNegoNeedFinal);
-
+    socket.on("end:call", handleEndCall)
 
     return () => {
       //   socket.off("user:joined", handleUserJoined);
@@ -260,14 +309,16 @@ function ChatArea() {
       socket.off("call:accepted", handleCallAccepted);
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
       socket.off("peer:nego:final", handleNegoNeedFinal);
+      socket.off("end:call", handleEndCall)
+
     };
   }, [
     socket,
-    // handleUserJoined,
     handleIncommingCall,
     handleCallAccepted,
     handleNegoNeedIncomming,
     handleNegoNeedFinal,
+    handleEndCall
   ]);
 
   //--------------------------------------------------------
@@ -295,20 +346,15 @@ function ChatArea() {
   const makeCall = () => {
     // alert('calling...')
     // navigate('/app/room')
-    setConfrence(false);
+    setConfrence(true);
     setIncoming(false);
-    setDialling(true);
+    // setDialling(true);
     handleCallUser();
   }
 
-  const endCall = () => {
-    setDialling(false);
-    setIncoming(false);
-  }
-
   const stopStream = () => {
-    // if (peerConnection) {
-    //   peerConnection.close();
+    // if (peer) {
+    // peer.peer.close();
     // }
 
     // Stop all tracks in the local stream
@@ -318,25 +364,58 @@ function ChatArea() {
     if (remoteStream) {
       remoteStream.getTracks().forEach(track => track.stop());
     }
+
+    setMyStream(null)
+    setRemoteStream(null)
   }
 
   return (
     <div className={`w-full flex flex-col  ${lightTheme ? "" : " dark"}`}>
 
-      {incoming && <IncomingCall endCall={endCall} answerCall={answerCall} />}
-      {dialling && <DialingScreen endCall={endCall} />}
-      {confrence && <Room myStream={myStream} remoteStream={remoteStream} stopStream={stopStream} />}
+      {incoming && <IncomingCall endCall={endCall} answerCall={answerCall} callerName={chat_user} />}
+
+      {confrence/*confrence*/ &&
+        <Room
+          myStream={myStream}
+          remoteStream={remoteStream}
+          endCall={endCall}
+          CALL_TYPE={CALL_TYPE.current}
+          receiverName={chat_user}
+
+        />
+      }
 
 
-      <div className={" pl-16 md:pl-4 flex items-center gap-3 px-4 py-3 bg-bg-tertary text-text-tertary " + (lightTheme ? "border-b-slate-300" : " dark border-b-slate-500")}>
+
+      <div className={" pl-16 md:pl-4 flex items-center gap-2 px-4 py-3 bg-bg-tertary text-text-tertary " + (lightTheme ? "border-b-slate-300" : " dark border-b-slate-500")}>
         <ProfilePlaceholder name={chat_user} lightTheme={!lightTheme} />
-        <p className={`text-2xl font-semibold ${lightTheme ? "" : " dark"}`}>
+        <p className={`text-xl capitalize ${lightTheme ? "" : " dark"}`}>
           {chat_user}
         </p>
-        <div
-          onClick={makeCall}
-          className=" w-10 p-2 rounded-full  bg-bg-primary text-xl font-bold ml-auto cursor-pointer">
-          <img src={video_call_icon} alt="call" />
+
+        <div className="flex gap-5 ml-auto ">
+
+          <div
+            onClick={() => { CALL_TYPE.current = SCREEN_SHARE; makeCall() }}
+            title="share screen"
+            className=" w-8 p-2  rounded-full  bg-bg-primary text-xl font-bold cursor-pointer">
+            <img src={screen_share_icon} alt="screen share icon" />
+          </div>
+
+          <div
+            onClick={() => { CALL_TYPE.current = VOICE; makeCall() }}
+            title="voice call"
+            className=" w-8 p-2  rounded-full  bg-bg-primary text-xl font-bold cursor-pointer">
+            <img src={voice_call_icon} alt="voice call icon" />
+          </div>
+
+          <div
+            onClick={() => { CALL_TYPE.current = VIDEO; makeCall() }}
+            title="video call"
+            className=" w-8 p-2 rounded-full  bg-bg-primary text-xl font-bold ml-auto cursor-pointer">
+            <img src={video_call_icon} alt="video call icon" />
+          </div>
+
         </div>
       </div>
 
