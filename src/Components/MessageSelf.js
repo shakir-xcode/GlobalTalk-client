@@ -2,9 +2,6 @@ import React from "react";
 import ImageChat from "./ImageChat";
 
 function MessageSelf({ message, hasMedia, fileName, mimetype }) {
-  // console.log("Message self Prop : ", props);
-  // if (hasMedia)
-  //   console.log('MessageSelf ::  MIMETYPE = ' + mimetype + ' FILENAME = ' + fileName)
 
   return (
     <div className="flex justify-end ">

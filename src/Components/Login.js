@@ -27,12 +27,10 @@ function Login() {
 
   useEffect(() => {
     if (userData) {
-      console.log("User  Authenticated");
       navigate("/app/welcome");
     }
   }, [])
 
-  console.log('USER DATA ... ', data);
 
   const changeHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
@@ -56,7 +54,6 @@ function Login() {
       // console.log("Login : ", response);
       setLogInStatus({ msg: "Success", key: Math.random() });
       setLoading(false);
-      console.log('LOGIN details received: ', response);
       localStorage.setItem("userData", JSON.stringify(response));
       navigate("/app/welcome");
     } catch (error) {
@@ -119,13 +116,6 @@ function Login() {
 
   return (
     <div className="w-full h-[100dvh] flex justify-center items-center bg-bg-primary">
-      {/* <div className={` absolute ${loading ? 'flex' : 'hidden'} z-50 top-0 right-0 left-0 bottom-0 bg-slate-100/50 items-center justify-center border border-black`}>
-        <div
-          style={{ borderTopColor: "transparent" }}
-          className="w-8 h-8 border-4 border-bg-primary rounded-full animate-spin"
-        />
-        <p className="ml-2">Please Wait...</p>
-      </div> */}
 
       <div className=" flex justify-center items-center  bg-white h-[80%] w-full">
         <div className="md:mr-[6em] lg:mr-[10em]  hidden  md:flex flex-col justify-center items-center">

@@ -36,7 +36,6 @@ function CreateGroups() {
     setOpen(false);
   };
 
-  // console.log("User Data from CreateGroups : ", userData);
 
   const createGroup = () => {
     const config = {

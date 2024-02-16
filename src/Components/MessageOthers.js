@@ -7,22 +7,14 @@ import ImageChat from './ImageChat';
 function MessageOthers(props) {
   const [otherVersion, setOtherVersion] = useState(false);
   const lightTheme = useSelector((state) => state.themeKey);
-  // console.log(props.fileName)
-  // if (props.hasMedia)
-  //   console.log('MessageOther ::  MIMETYPE = ' + props.mimetype + ' FILENAME = ' + props.fileName)
 
-  // console.log('MIMETYPE in parent ----------- ', props.mimetype)
-
-  const avatarGenerator = (name, color = '3f3e3e', bgColor = 'e0e0e0') => {
-    return `https://ui-avatars.com/api/?name=${name}=true&bold=true&background=${bgColor}&color=${color}`
-  }
-
-  // const ImageChatTemp = <ImageChat filename={props.fileName} mimetype={props.mimetype} selfMessage={false} />
+  // const avatarGenerator = (name, color = '3f3e3e', bgColor = 'e0e0e0') => {
+  //   return `https://ui-avatars.com/api/?name=${name}=true&bold=true&background=${bgColor}&color=${color}`
+  // }
 
   return (
     <div>
 
-      {/* <div className={" w-fit max-w-[350px] ml-6 mr-10  rounded-lg rounded-bl-none flex flex-col " + (lightTheme ? "bg-bg-primary" : " bg-slate-500/25")}> */}
       <div className=" w-fit max-w-[350px] ml-6 mr-10  ">
         {
           (props.isBotChat || props.isGroupChat) ?

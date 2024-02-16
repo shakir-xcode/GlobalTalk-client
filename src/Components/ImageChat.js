@@ -1,6 +1,6 @@
 import React from 'react'
 import { baseURI, staticURI } from '../api/appApi';
-import getFileExtension, { isImageFile, getFileName } from '../utility/getExtension';
+import { isImageFile, getFileName } from '../utility/getExtension';
 import pdf_icon from "../Images/pdf_icon.svg"
 import file_icon from "../Images/file_icon.svg"
 import video_preview_icon from "../Images/video_preview_icon.png"

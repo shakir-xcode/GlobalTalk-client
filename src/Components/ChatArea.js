@@ -3,10 +3,9 @@ import MessageSelf from "./MessageSelf";
 import MessageOthers from "./MessageOthers";
 import Toaster from "./Toaster";
 import { useSelector } from "react-redux";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import { myContext } from "./MainContainer";
-import io from "socket.io-client";
 import { sendBotRequest } from "../api/chatbotApi";
 import Send_Icon from "../Images/send_icon.svg";
 import { baseURI } from "../api/appApi";
@@ -15,8 +14,6 @@ import FileUploadIcon from "./FileUploadIcon";
 import FilePreviewer from "./FilePreviewer";
 import { getSocket } from "../api/socket";
 import IncomingCall from "./IncomingCall";
-import CallingScreen from "./DialingScreen";
-import DialingScreen from "./DialingScreen";
 import video_call_icon from "../Images/video_call.svg"
 import getPeer from "../services/peer";
 import Room from "./Room";
@@ -24,22 +21,17 @@ import voice_call_icon from "../Images/accept_call.svg";
 import { VIDEO, VOICE, SCREEN_SHARE } from "../utility/constants";
 import screen_share_icon from "../Images/screen_share_icon.svg";
 
-const ENDPOINT = "http://localhost:4000";
 
 let socket;
 let peer = null;
 function ChatArea() {
-  // let peer = getPeer();
 
   if (!peer?.peer || peer?.peer.connectionState === "closed") {
-    // console.log('NEW PEER CREATED... ')
     peer = getPeer();
   }
 
-  // console.log('CHAT AREA RENDERED: ')
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // console.log('SELECTED FILE ---------------', selectedFile);
   const lightTheme = useSelector((state) => state.themeKey);
   const [messageContent, setMessageContent] = useState("");
   const dyParams = useParams();
@@ -52,16 +44,13 @@ function ChatArea() {
   const [socketConnectionStatus, setSocketConnectionStatus] = useState(false);
 
 
-  // const [peer, setPeer] = useState(getPeer());
   const CALL_TYPE = useRef(null);
-  // const isVideoCall = useRef(false);
   const [incoming, setIncoming] = useState(false);
   const [confrence, setConfrence] = useState(false);
   const [myStream, setMyStream] = useState(null)
   const [remoteStream, setRemoteStream] = useState(null);
   const [screenSharing, setScreenSharing] = useState(false);
 
-  const navigate = useNavigate();
   const location = useLocation();
   const isBotChat = (location.state?.isChatbot);
   const isGroupChat = (location.state?.isGroupChat);
@@ -95,7 +84,6 @@ function ChatArea() {
   }
 
   const syncMessage = data => {
-    console.log('RECEIVED MY SAVED MESSAGE: ', data)
     setAllMessages([...allMessages, data]);
     if (!isBotChat)
       socket.emit("new message", data);
@@ -105,7 +93,6 @@ function ChatArea() {
   const sendMessage = () => {
     sendMessageRequest(messageContent, chat_id)
       .then(({ data }) => {
-        // console.log('RECEIVED MY SAVED MESSAGE: ', data)
         setAllMessages([...allMessages, data]);
         if (!isBotChat)
           socket.emit("new message", data);
@@ -117,7 +104,6 @@ function ChatArea() {
     if (isBotChat) {
       sendBotRequest(messageContent)
         .then(({ data }) => {
-          console.log('BOT API RESPONDED: ', data)
           handleChatBotMessage(data.choices[0].message.content);
         })
         .catch(err => console.log(err))
@@ -134,7 +120,6 @@ function ChatArea() {
       }
     )
       .then(({ data }) => {
-        console.log('BOT SAVED message response: ', data)
         setAllMessages(prevMessages => [...prevMessages, data]);
       })
       .catch(console.log)
@@ -145,7 +130,6 @@ function ChatArea() {
   }
 
   useEffect(() => {
-    // console.log('USE EFFEFT ------------------- 1');
     socket = getSocket();
     socket.emit("setup", userData)
     socket.on("connected", () => {
@@ -153,16 +137,12 @@ function ChatArea() {
     })
 
     socket.on("message received", (newMessage) => {
-      console.log('NEW MESSAGE RECEIVED: ', newMessage)
       if (false) {
       } else {
-        console.log('INSIDE ELSE')
         setAllMessages(pre => [...pre, newMessage]);
       }
     })
-    return () => {
-      // stopStream()
-    }
+
   }, []);
 
 
@@ -179,7 +159,6 @@ function ChatArea() {
   }
 
   const handleEndCall = () => {
-    console.log('call ended..')
     stopStream();
     setConfrence(false);
     setIncoming(false);
@@ -188,31 +167,32 @@ function ChatArea() {
   }
 
   const handleCallUser = useCallback(async () => {
-    console.log('CALL TYPE: ', CALL_TYPE.current)
     let stream = null;
-    if (CALL_TYPE.current !== SCREEN_SHARE) {
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: CALL_TYPE.current === VIDEO ? true : false,
-      });
-    }
-    else {
-      stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
-    }
+    try {
+      if (CALL_TYPE.current !== SCREEN_SHARE) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: CALL_TYPE.current === VIDEO ? true : false,
+        });
+      }
+      else {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      }
 
-    const offer = await peer.getOffer();
-    socket.emit("user:call", { offer, CALL_TYPE: CALL_TYPE.current });
-    setMyStream(stream);    //TODO: IN CASE OF VOICE CALL, DO I NEED TO setMyStream()
+      const offer = await peer.getOffer();
+      socket.emit("user:call", { offer, CALL_TYPE: CALL_TYPE.current });
+      setMyStream(stream);
+    } catch (error) {
+      alert(error)
+      setConfrence(false)
+    }
   }, [socket]);
 
 
 
   const handleIncommingCall = useCallback(
     async ({ offer, callType }) => {
-      // setRemoteSocketId(from);
-      // isVideoCall.current = isVideo;
       CALL_TYPE.current = callType
-      console.log('INCOMING....', CALL_TYPE.current)
       setIncoming(true)
       let stream = null;
       try {
@@ -223,7 +203,6 @@ function ChatArea() {
           });
           setMyStream(stream);
         }
-        console.log(`Incoming Call`, offer);
         const ans = await peer.getAnswer(offer);
         socket.emit("call:accepted", { ans });
 
@@ -242,11 +221,9 @@ function ChatArea() {
 
 
   const handleCallAccepted = useCallback(
-    //user knows who accepted
     ({ ans }) => {
       peer.setLocalDescription(ans);
-      console.log("Call Accepted!");
-      sendStreams();    //-------------------------------------------------------TODO: Conditionally do
+      sendStreams();
     },
     [sendStreams]
   );
@@ -258,25 +235,19 @@ function ChatArea() {
 
 
   const handleScreenReceived = () => {
-    console.log('Screen SHARING NOW...')
     setScreenSharing(true);
   }
 
   useEffect(() => {
-    console.log('HERE----------------------------')
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
-      console.log("GOT TRACKS!-----------------!");
       setRemoteStream(remoteStream[0]);
     });
 
     return () => {
-      console.log("Removed listener");
       peer.peer.removeEventListener("track", async (ev) => {
         const remoteStream = ev.streams;
-        console.log("Removed listener");
         setRemoteStream(remoteStream[0]);
-
       });
     }
   }, [peer])
@@ -299,29 +270,21 @@ function ChatArea() {
   const handleNegoNeedFinal = useCallback(async ({ ans }) => {
     await peer.setLocalDescription(ans);
     setIncoming(false)
-    // setDialling(false);
     setConfrence(true);
   }, []);
 
   const answerCall = async () => {
-    // const ans = await peer.getAnswer(OFFER);
-    // socket.emit("call:accepted", { ans });
-    console.log('CALL ANSWERED...')
     if (CALL_TYPE.current !== SCREEN_SHARE)
-      sendStreams();    //-------------------------------------------------------TODO: Conditionally do // DONE
+      sendStreams();
     else
       socket.emit('screen:received')
 
     setIncoming(false);
-    // setDialling(false);
     setConfrence(true);
 
-    // if (CALL_TYPE.current === SCREEN_SHARE)
-    // socket.emit('screen:received')
   }
 
   useEffect(() => {
-    // socket.on("user:joined", handleUserJoined);
     socket.on("incomming:call", handleIncommingCall);
     socket.on("call:accepted", handleCallAccepted);
     socket.on("peer:nego:needed", handleNegoNeedIncomming);
@@ -330,7 +293,6 @@ function ChatArea() {
     socket.on("screen:received", handleScreenReceived)
 
     return () => {
-      //   socket.off("user:joined", handleUserJoined);
       socket.off("incomming:call", handleIncommingCall);
       socket.off("call:accepted", handleCallAccepted);
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
@@ -350,7 +312,6 @@ function ChatArea() {
   //--------------------------------------------------------
 
   useEffect(() => {
-    // console.log('USE EFFEFT ------------------- 3');
     const config = {
       headers: {
         Authorization: `Bearer ${userData?.data.token}`,
@@ -358,7 +319,6 @@ function ChatArea() {
     };
     axios
       .get(`${baseURI}/message/` + chat_id, config)
-      // .get(`${baseURI}/message/`, { chatId: chat_id }, config)
       .then(({ data }) => {
         setAllMessages(data);
         setloaded(true);
@@ -366,24 +326,13 @@ function ChatArea() {
       });
   }, [refresh, chat_id, userData?.data.token]);
 
-
-
-
   const makeCall = () => {
-    // alert('calling...')
-    // navigate('/app/room')
     setConfrence(true);
     setIncoming(false);
-    // setDialling(true);
     handleCallUser();
   }
 
   const stopStream = () => {
-    // if (peer) {
-    // peer.peer.close();
-    // }
-
-    // Stop all tracks in the local stream
     if (myStream) {
       myStream.getTracks().forEach(track => track.stop());
     }
@@ -416,8 +365,6 @@ function ChatArea() {
           screenSharing={screenSharing}
         />
       }
-
-
 
       <div className={" pl-16 md:pl-4 flex items-center gap-2 px-4 py-3 bg-bg-tertary text-text-tertary " + (lightTheme ? "border-b-slate-300" : " dark border-b-slate-500")}>
         <ProfilePlaceholder name={chat_user} lightTheme={!lightTheme} />
@@ -453,16 +400,12 @@ function ChatArea() {
 
       {/* CHATS */}
       <div className={`  flex flex-col-reverse grow gap-2 p-2 pr-3 overflow-scroll hide-myscrollbar shadow-inner  ${lightTheme ? "shadow-slate-300 bg-chat-bg-light" : "  shadow-slate-600 "}`}>
-        {/* <img src={Chat_bg} alt="bg" className="absolute inset-0 opacity " /> */}
-        {/* <ImageChat /> */}
         {allMessages
           .slice(0)
           .reverse()
           .map((message, index) => {
             const sender = message.sender;
             const self_id = userData.data._id;
-            // console.log("MESSAGE ------------------------ : ", message?.media?.mimetype);
-
             if (sender._id === self_id) {
               return <MessageSelf message={message.content[userData.data._id]}
                 hasMedia={message?.hasMedia}
@@ -470,7 +413,6 @@ function ChatArea() {
                 mimetype={message?.media?.mimetype}
                 key={index} />;
             } else {
-              // console.log("Someone Sent it--------", message);
               return <MessageOthers
                 hasMedia={message?.hasMedia}
                 fileName={message?.media?.filename}
@@ -491,7 +433,6 @@ function ChatArea() {
       {/* MESSAGE INPUT */}
 
       <div className={" relative flex px-5 py-2 shadow-inner " + (lightTheme ? " bg-bg-tertary" : " dark shadow-slate-600")}>
-
 
         {selectedFile ?
           <div className=" absolute w-full z-10 bottom-0 left-0">
@@ -515,10 +456,8 @@ function ChatArea() {
           }}
           onKeyDown={(event) => {
             if (event.code === "Enter") {
-              // console.log(event);
               sendMessage();
               setMessageContent("");
-              // setRefresh(!refresh);
             }
           }}
         />

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./App.css";
 import MainContainer from "./Components/MainContainer";
 import Login from "./Components/Login";
@@ -9,28 +9,15 @@ import Users from "./Components/Users";
 import CreateGroups from "./Components/CreateGroups";
 import Groups from "./Components/Groups";
 import { useSelector } from "react-redux";
-import CallingScreen from "./Components/DialingScreen";
-import { io } from "socket.io-client";
 import IncomingCall from "./Components/IncomingCall";
 import Room from "./Components/Room";
 
-
-// let socket;
-// const ENDPOINT = "http://localhost:4000";
-
-
 function App() {
-  // const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
-  useEffect(() => {
-    // socket = io(ENDPOINT);
-    // console.log('APP RENDERED: ', socket)
 
-  }, [])
   return (
     <div className={"App mx-auto " + (lightTheme ? "" : "-dark")}>
-      {/* <MainContainer /> */}
-      {/* <Login /> */}
+
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="app" element={<MainContainer />}>

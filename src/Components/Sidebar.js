@@ -7,13 +7,11 @@ import Lightmode_icon from "../Images/lightmode_icon.svg";
 import Darkmode_icon from "../Images/darkmode_icon.svg";
 import Logout_icon from "../Images/logout_icon.svg";
 import Search_icon from "../Images/search_icon.svg";
-import Profile_Placeholder from "../Images/profile_placeholder.jpg";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
 import axios from "axios";
 import { myContext } from "./MainContainer";
-import { APP_TITLE } from "../config";
 import ProfilePlaceholder from "./ProfilePlaceholder";
 import { baseURI } from "../api/appApi";
 
@@ -32,16 +30,16 @@ function Sidebar() {
   const [conversations, setConversations] = useState([]);
   const [otherParty, setOtherParty] = useState([]);
   const userData = JSON.parse(localStorage.getItem("userData"));
-  // const nav = useNavigate();
+
 
   if (!userData) {
     console.log("User not Authenticated");
     navigate("/");
   }
 
-  const avatarGenerator = (name) => {
-    return `https://ui-avatars.com/api/?name=${name}=true&bold=true&background=e0e0e0&color=3f3e3e`
-  }
+  // const avatarGenerator = (name) => {
+  //   return `https://ui-avatars.com/api/?name=${name}=true&bold=true&background=e0e0e0&color=3f3e3e`
+  // }
 
   const truncateString = (str, len = 30) => {
     if (!str) return "click to start a conversation";
@@ -75,7 +73,6 @@ function Sidebar() {
     };
 
     axios.get(`${baseURI}/chat/`, config).then((response) => {
-      console.log("CONVERSATIONS in sidebar (**NETWORK REQUEST**) ", response.data);
       setConversations(response.data);
       setOtherParty(getNames(response.data))
 
@@ -184,7 +181,6 @@ function Sidebar() {
             >
               <div className="flex items-center gap-2">
 
-                {/* <img src={avatarGenerator(otherParty[index].name)} alt="profile" className="w-10 rounded-full" /> */}
                 <ProfilePlaceholder name={otherParty[index].name} lightTheme={lightTheme} />
 
                 <div>

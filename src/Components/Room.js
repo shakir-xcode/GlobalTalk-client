@@ -1,13 +1,11 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React from "react";
 import ReactPlayer from "react-player";
-import peer from "../services/peer";
-import { getSocket } from "../api/socket";
 import DialingScreen from "./DialingScreen";
 import endCall_icon from "../Images/accept_call.svg";
 import audio_icon from "../Images/audio_icon.svg";
 import "./myStyles.css"
 import { VIDEO, VOICE, SCREEN_SHARE } from "../utility/constants";
-// const socket = getSocket();
+
 const Room = ({
     myStream,
     remoteStream,
@@ -46,7 +44,7 @@ const Room = ({
                     {CALL_TYPE === VIDEO &&
                         // VIDEO CALL
                         <>
-                            <div className=" border fixed z-20">
+                            <div className=" fixed z-20">
                                 <ReactPlayer
                                     muted
                                     playing
@@ -55,7 +53,7 @@ const Room = ({
                                     url={myStream}
                                 />
                             </div>
-                            <div className=" border fixed inset-0 z-10 ">
+                            <div className=" fixed inset-0 z-10 ">
                                 <ReactPlayer
                                     muted
                                     playing
@@ -81,7 +79,7 @@ const Room = ({
                     }
 
                     {CALL_TYPE === SCREEN_SHARE &&
-                        <div className=" border fixed inset-0 z-10 ">
+                        <div className=" fixed inset-0 z-10 ">
                             <ReactPlayer
 
                                 playing

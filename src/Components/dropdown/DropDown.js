@@ -10,9 +10,6 @@ const DropDown = ({ setLanguage }) => {
     const [term, setTerm] = useState('');
     const [selectedLanguage, setSelectedLanguage] = useState("choose language");
 
-    console.log('DROP DOWN RENDERED------------------------------')
-    // console.log('SELECTED LANGUAGE: ', selectedLanguage);
-
     const trimISO = code => code.split(" ")[0];
 
     useEffect(() => {
@@ -25,7 +22,6 @@ const DropDown = ({ setLanguage }) => {
 
         COUNTRY_LIST.forEach(item => {
             if (item.country?.toLowerCase().indexOf(term) > -1) {
-                // console.log(item.country)
                 filteredList.push(item);
             }
         })

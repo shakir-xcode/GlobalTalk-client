@@ -1,6 +1,5 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import SendIcon from "../Images/send_icon.svg";
 import { baseURI } from '../api/appApi';
 import file_icon from "../Images/file_icon.svg";
 import pdf_icon from "../Images/pdf_icon.svg";
