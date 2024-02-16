@@ -8,7 +8,14 @@ import audio_icon from "../Images/audio_icon.svg";
 import "./myStyles.css"
 import { VIDEO, VOICE, SCREEN_SHARE } from "../utility/constants";
 // const socket = getSocket();
-const Room = ({ myStream, remoteStream, screenSharing, endCall, CALL_TYPE, receiverName }) => {
+const Room = ({
+    myStream,
+    remoteStream,
+    endCall,
+    CALL_TYPE,
+    receiverName,
+    screenSharing
+}) => {
     console.log('CALL_TYPE : ', CALL_TYPE);
 
     if (CALL_TYPE === VOICE) {
@@ -26,7 +33,7 @@ const Room = ({ myStream, remoteStream, screenSharing, endCall, CALL_TYPE, recei
 
     return (
         <div className="fixed z-20 inset-0 bg-gray-800">
-            {!remoteStream ? <DialingScreen endCall={endCall} receiverName={receiverName} />
+            {!remoteStream ? <DialingScreen endCall={endCall} receiverName={receiverName} screenSharing={screenSharing} />
                 :
                 <div className=" fixed inset-0  z-20 h-screen">
                     <button
@@ -76,11 +83,11 @@ const Room = ({ myStream, remoteStream, screenSharing, endCall, CALL_TYPE, recei
                     {CALL_TYPE === SCREEN_SHARE &&
                         <div className=" border fixed inset-0 z-10 ">
                             <ReactPlayer
-                                muted
+
                                 playing
                                 height="100%"
                                 width="100%"
-                                url={screenSharing}
+                                url={remoteStream}
                             />
 
                         </div>

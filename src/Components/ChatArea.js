@@ -59,7 +59,7 @@ function ChatArea() {
   const [confrence, setConfrence] = useState(false);
   const [myStream, setMyStream] = useState(null)
   const [remoteStream, setRemoteStream] = useState(null);
-
+  const [screenSharing, setScreenSharing] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -175,6 +175,7 @@ function ChatArea() {
     stopStream();
     setConfrence(false);
     setIncoming(false);
+    setScreenSharing(false);
   }
 
   const handleEndCall = () => {
@@ -182,19 +183,29 @@ function ChatArea() {
     stopStream();
     setConfrence(false);
     setIncoming(false);
+    setScreenSharing(false);
+
   }
 
   const handleCallUser = useCallback(async () => {
     console.log('CALL TYPE: ', CALL_TYPE.current)
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: CALL_TYPE.current === VIDEO ? true : false,
-    });
+    let stream = null;
+    if (CALL_TYPE.current !== SCREEN_SHARE) {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: CALL_TYPE.current === VIDEO ? true : false,
+      });
+    }
+    else {
+      stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    }
 
     const offer = await peer.getOffer();
     socket.emit("user:call", { offer, CALL_TYPE: CALL_TYPE.current });
-    setMyStream(stream);
+    setMyStream(stream);    //TODO: IN CASE OF VOICE CALL, DO I NEED TO setMyStream()
   }, [socket]);
+
+
 
   const handleIncommingCall = useCallback(
     async ({ offer, callType }) => {
@@ -203,13 +214,15 @@ function ChatArea() {
       CALL_TYPE.current = callType
       console.log('INCOMING....', CALL_TYPE.current)
       setIncoming(true)
+      let stream = null;
       try {
-
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: callType === VIDEO ? true : false,
-        });
-        setMyStream(stream);
+        if (CALL_TYPE.current !== SCREEN_SHARE) {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: callType === VIDEO ? true : false,
+          });
+          setMyStream(stream);
+        }
         console.log(`Incoming Call`, offer);
         const ans = await peer.getAnswer(offer);
         socket.emit("call:accepted", { ans });
@@ -233,7 +246,7 @@ function ChatArea() {
     ({ ans }) => {
       peer.setLocalDescription(ans);
       console.log("Call Accepted!");
-      sendStreams();
+      sendStreams();    //-------------------------------------------------------TODO: Conditionally do
     },
     [sendStreams]
   );
@@ -243,6 +256,11 @@ function ChatArea() {
     socket.emit("peer:nego:needed", { offer });
   }, [socket]);
 
+
+  const handleScreenReceived = () => {
+    console.log('Screen SHARING NOW...')
+    setScreenSharing(true);
+  }
 
   useEffect(() => {
     console.log('HERE----------------------------')
@@ -258,6 +276,7 @@ function ChatArea() {
         const remoteStream = ev.streams;
         console.log("Removed listener");
         setRemoteStream(remoteStream[0]);
+
       });
     }
   }, [peer])
@@ -284,15 +303,21 @@ function ChatArea() {
     setConfrence(true);
   }, []);
 
-
   const answerCall = async () => {
     // const ans = await peer.getAnswer(OFFER);
     // socket.emit("call:accepted", { ans });
     console.log('CALL ANSWERED...')
-    sendStreams();
+    if (CALL_TYPE.current !== SCREEN_SHARE)
+      sendStreams();    //-------------------------------------------------------TODO: Conditionally do // DONE
+    else
+      socket.emit('screen:received')
+
     setIncoming(false);
     // setDialling(false);
     setConfrence(true);
+
+    // if (CALL_TYPE.current === SCREEN_SHARE)
+    // socket.emit('screen:received')
   }
 
   useEffect(() => {
@@ -302,6 +327,7 @@ function ChatArea() {
     socket.on("peer:nego:needed", handleNegoNeedIncomming);
     socket.on("peer:nego:final", handleNegoNeedFinal);
     socket.on("end:call", handleEndCall)
+    socket.on("screen:received", handleScreenReceived)
 
     return () => {
       //   socket.off("user:joined", handleUserJoined);
@@ -310,7 +336,7 @@ function ChatArea() {
       socket.off("peer:nego:needed", handleNegoNeedIncomming);
       socket.off("peer:nego:final", handleNegoNeedFinal);
       socket.off("end:call", handleEndCall)
-
+      socket.off("screen:received", handleScreenReceived)
     };
   }, [
     socket,
@@ -372,7 +398,13 @@ function ChatArea() {
   return (
     <div className={`w-full flex flex-col  ${lightTheme ? "" : " dark"}`}>
 
-      {incoming && <IncomingCall endCall={endCall} answerCall={answerCall} callerName={chat_user} />}
+      {incoming &&
+        <IncomingCall
+          endCall={endCall}
+          answerCall={answerCall}
+          callerName={chat_user}
+          CALL_TYPE={CALL_TYPE.current}
+        />}
 
       {confrence/*confrence*/ &&
         <Room
@@ -381,7 +413,7 @@ function ChatArea() {
           endCall={endCall}
           CALL_TYPE={CALL_TYPE.current}
           receiverName={chat_user}
-
+          screenSharing={screenSharing}
         />
       }
 
