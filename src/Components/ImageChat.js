@@ -49,7 +49,7 @@ const ImageChat = ({ filename, selfMessage, mimetype }) => {
   return (
     <div
       onClick={downloadResource}
-      className={`max-w-[200px] px-0.5 py-0.5 bg-cyan-50 rounded-lg ${selfMessage ? "rounded-br-none" : "rounded-bl-none cursor-pointer"}`}>
+      className={`max-w-[200px] px-0.5 py-0.5 bg-cyan-100 rounded-lg ${selfMessage ? "rounded-br-none" : "rounded-bl-none cursor-pointer"}`}>
       {isImageFile(filename) ?
         <img className='w-[100%] rounded-md' src={filePath} alt='chatImage' />
         :

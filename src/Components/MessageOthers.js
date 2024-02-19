@@ -7,10 +7,7 @@ import ImageChat from './ImageChat';
 function MessageOthers(props) {
   const [otherVersion, setOtherVersion] = useState(false);
   const lightTheme = useSelector((state) => state.themeKey);
-
-  // const avatarGenerator = (name, color = '3f3e3e', bgColor = 'e0e0e0') => {
-  //   return `https://ui-avatars.com/api/?name=${name}=true&bold=true&background=${bgColor}&color=${color}`
-  // }
+  const receiverName = props.isGroupChat ? props.groupSender : props.receiverName
 
   return (
     <div>
@@ -49,8 +46,8 @@ function MessageOthers(props) {
         }
       </div>
 
-      <div className="">
-        <ProfilePlaceholder name={props.receiverName} lightTheme={!lightTheme} size={6} />
+      <div className="w-fit">
+        <ProfilePlaceholder name={receiverName} lightTheme={!lightTheme} size={7} />
       </div>
 
     </div>

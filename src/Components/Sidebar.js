@@ -31,7 +31,6 @@ function Sidebar() {
   const [otherParty, setOtherParty] = useState([]);
   const userData = JSON.parse(localStorage.getItem("userData"));
 
-
   if (!userData) {
     console.log("User not Authenticated");
     navigate("/");
@@ -159,6 +158,7 @@ function Sidebar() {
 
       <div className={` flex flex-col gap-2  grow overflow-scroll hide-myscrollbar `}>
         {conversations.map((conversation, index) => {
+          // console.log(conversation?.latestMessage?.content)
           return (
             <div
               key={index}
@@ -181,14 +181,16 @@ function Sidebar() {
             >
               <div className="flex items-center gap-2">
 
-                <ProfilePlaceholder name={otherParty[index].name} lightTheme={lightTheme} />
+                <ProfilePlaceholder name={otherParty[index].name} lightTheme={lightTheme}
+                  size={7}
+                />
 
                 <div>
                   <p className={` capitalize font-semibold ${lightTheme ? 'text-text-primary' : 'text-text-tertary'}`}>
                     {otherParty[index].name}
                   </p>
                   <p className="text-xs ">
-                    {truncateString(conversation?.latestMessage?.content.originalMessage)}
+                    {truncateString(conversation?.latestMessage?.content[userData?.data?._id])}
                   </p>
                 </div>
               </div>

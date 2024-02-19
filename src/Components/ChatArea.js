@@ -367,7 +367,8 @@ function ChatArea() {
       }
 
       <div className={" pl-16 md:pl-4 flex items-center gap-2 px-4 py-3 bg-bg-tertary text-text-tertary " + (lightTheme ? "border-b-slate-300" : " dark border-b-slate-500")}>
-        <ProfilePlaceholder name={chat_user} lightTheme={!lightTheme} />
+
+        <ProfilePlaceholder name={chat_user} lightTheme={!lightTheme} size={10} />
         <p className={`text-xl capitalize ${lightTheme ? "" : " dark"}`}>
           {chat_user}
         </p>
@@ -413,6 +414,7 @@ function ChatArea() {
                 mimetype={message?.media?.mimetype}
                 key={index} />;
             } else {
+              console.log('Other MESSAGE ', message)
               return <MessageOthers
                 hasMedia={message?.hasMedia}
                 fileName={message?.media?.filename}
@@ -422,6 +424,7 @@ function ChatArea() {
                 key={index}
                 isBotChat={isBotChat}
                 isGroupChat={isGroupChat}
+                groupSender={message?.sender?.name}
                 receiverId={receiverId}
                 receiverName={chat_user}
                 lightTheme={lightTheme}
