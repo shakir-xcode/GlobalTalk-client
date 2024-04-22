@@ -10,22 +10,19 @@ import { baseURI } from "../api/appApi";
 import ProfilePlaceholder from "./ProfilePlaceholder";
 
 function Groups() {
-  console.log('GROUPS RENDERED...');
   const { refresh, setRefresh } = useContext(myContext);
 
   const lightTheme = useSelector((state) => state.themeKey);
-  const dispatch = useDispatch();
   const [groups, SetGroups] = useState([]);
   const userData = JSON.parse(localStorage.getItem("userData"));
   const nav = useNavigate();
   if (!userData) {
-    console.log("User not Authenticated");
+    console.error("User not Authenticated");
     nav("/");
   }
 
   const user = userData?.data;
   useEffect(() => {
-    // console.log("Users refreshed : ", user.token);
     const config = {
       headers: {
         Authorization: `Bearer ${user?.token}`,
@@ -69,7 +66,6 @@ function Groups() {
               className={"border-b px-4 py-3 flex items-center gap-3 cursor-pointer " + (lightTheme ? "hover:bg-slate-100" : " border-b-slate-600 text-text-primary hover:bg-slate-700")}
               key={index}
               onClick={() => {
-                // console.log("Creating chat with group", group.chatName);
                 const config = {
                   headers: {
                     Authorization: `Bearer ${userData.data.token}`,

@@ -36,13 +36,9 @@ const IncomingCall = ({ endCall, answerCall, CALL_TYPE, callerName, }) => {
             </button>
           </div>
         </div>
-
       </div>
     </div>
-
-
   );
 };
-
 
 export default IncomingCall

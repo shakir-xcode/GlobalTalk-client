@@ -7,7 +7,6 @@ import DropDown from "./dropdown/DropDown";
 import { baseURI } from "../api/appApi";
 
 function Login() {
-  console.log('LOGIN RENDERED...');
   const userData = JSON.parse(localStorage.getItem("userData"));
 
   const [showlogin, setShowLogin] = useState(false);
@@ -38,7 +37,6 @@ function Login() {
 
   const loginHandler = async (e) => {
     setLoading(true);
-    // console.log(data);
     try {
       const config = {
         headers: {
@@ -51,13 +49,12 @@ function Login() {
         data,
         config
       );
-      // console.log("Login : ", response);
       setLogInStatus({ msg: "Success", key: Math.random() });
       setLoading(false);
       localStorage.setItem("userData", JSON.stringify(response));
       navigate("/app/welcome");
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setLogInStatus({
         msg: "Invalid User name or Password",
         key: Math.random(),
@@ -84,13 +81,11 @@ function Login() {
       );
       setSignInStatus({ msg: "Success", key: Math.random() });
       navigate("/app/welcome");
-      console.log('REGISTRATION details saved: ', response);
       localStorage.setItem("userData", JSON.stringify(response));
       setLoading(false);
     } catch (error) {
-      console.log('ERROR === ', error);
+      console.error(error);
       if (error?.response.status === 405) {
-        // console.log('STATUS L 405');
         setSignInStatus({
           msg: error.response.data.message,
           key: Math.random(),

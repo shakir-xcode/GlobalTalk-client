@@ -56,7 +56,8 @@ function ChatArea() {
   const isGroupChat = (location.state?.isGroupChat);
   const receiverId = (location.state?._id);
   const receiverLanguageType = location.state?.receiverLanguageType;
-
+  const webRTCUser = useRef(null);
+  const callerName = useRef(null);
 
   const messageRoute = `${baseURI}/message/`
 
@@ -98,15 +99,16 @@ function ChatArea() {
           socket.emit("new message", data);
       })
       .catch(error => {
-        console.log(error)
+        console.error(error)
       })
 
     if (isBotChat) {
       sendBotRequest(messageContent)
         .then(({ data }) => {
-          handleChatBotMessage(data.choices[0].message.content);
+          // handleChatBotMessage(data.choices[0].message.content);
+          handleChatBotMessage(data.message);
         })
-        .catch(err => console.log(err))
+        .catch(err => console.error(err))
     }
   };
 
@@ -122,7 +124,7 @@ function ChatArea() {
       .then(({ data }) => {
         setAllMessages(prevMessages => [...prevMessages, data]);
       })
-      .catch(console.log)
+      .catch(console.error)
   }
 
   const deleteChatHandler = () => {
@@ -146,24 +148,18 @@ function ChatArea() {
   }, []);
 
 
+  useEffect(() => {
+    socket.emit('join chat', chat_id);
+  }, [chat_id])
 
 
   //  --------------- FOR webRTC --------------------
-
-  const endCall = () => {
-    socket.emit('end:call')
-    stopStream();
-    setConfrence(false);
-    setIncoming(false);
-    setScreenSharing(false);
-  }
 
   const handleEndCall = () => {
     stopStream();
     setConfrence(false);
     setIncoming(false);
     setScreenSharing(false);
-
   }
 
   const handleCallUser = useCallback(async () => {
@@ -180,7 +176,7 @@ function ChatArea() {
       }
 
       const offer = await peer.getOffer();
-      socket.emit("user:call", { offer, CALL_TYPE: CALL_TYPE.current });
+      socket.emit("user:call", { offer, CALL_TYPE: CALL_TYPE.current, userId: receiverId, senderId: userData.data._id, callername: userData.data.name });
       setMyStream(stream);
     } catch (error) {
       alert(error)
@@ -191,9 +187,11 @@ function ChatArea() {
 
 
   const handleIncommingCall = useCallback(
-    async ({ offer, callType }) => {
+    async ({ offer, callType, userId, senderId, callername }) => {
+      webRTCUser.current = senderId
+      callerName.current = callername
       CALL_TYPE.current = callType
-      setIncoming(true)
+      // setIncoming(true)
       let stream = null;
       try {
         if (CALL_TYPE.current !== SCREEN_SHARE) {
@@ -204,10 +202,10 @@ function ChatArea() {
           setMyStream(stream);
         }
         const ans = await peer.getAnswer(offer);
-        socket.emit("call:accepted", { ans });
+        socket.emit("call:accepted", { ans, userId: senderId });
 
       } catch (error) {
-        console.log('Error occured: ', error)
+        console.error('Error occured: ', error)
       }
     },
     [socket]
@@ -230,7 +228,7 @@ function ChatArea() {
 
   const handleNegoNeeded = useCallback(async () => {
     const offer = await peer.getOffer();
-    socket.emit("peer:nego:needed", { offer });
+    socket.emit("peer:nego:needed", { offer, userId: receiverId });
   }, [socket]);
 
 
@@ -242,12 +240,14 @@ function ChatArea() {
     peer.peer.addEventListener("track", async (ev) => {
       const remoteStream = ev.streams;
       setRemoteStream(remoteStream[0]);
+      setIncoming(true)
     });
 
     return () => {
       peer.peer.removeEventListener("track", async (ev) => {
         const remoteStream = ev.streams;
         setRemoteStream(remoteStream[0]);
+        setIncoming(true)
       });
     }
   }, [peer])
@@ -262,7 +262,7 @@ function ChatArea() {
   const handleNegoNeedIncomming = useCallback(
     async ({ offer }) => {
       const ans = await peer.getAnswer(offer);
-      socket.emit("peer:nego:done", { ans });
+      socket.emit("peer:nego:done", { ans, userId: receiverId });
     },
     [socket]
   );
@@ -277,11 +277,19 @@ function ChatArea() {
     if (CALL_TYPE.current !== SCREEN_SHARE)
       sendStreams();
     else
-      socket.emit('screen:received')
+      socket.emit('screen:received', { userId: receiverId })
 
     setIncoming(false);
     setConfrence(true);
 
+  }
+
+  const endCall = () => {
+    socket.emit('end:call', { userId: webRTCUser.current })
+    stopStream();
+    setConfrence(false);
+    setIncoming(false);
+    setScreenSharing(false);
   }
 
   useEffect(() => {
@@ -351,11 +359,11 @@ function ChatArea() {
         <IncomingCall
           endCall={endCall}
           answerCall={answerCall}
-          callerName={chat_user}
+          callerName={callerName.current}
           CALL_TYPE={CALL_TYPE.current}
         />}
 
-      {confrence/*confrence*/ &&
+      {confrence &&
         <Room
           myStream={myStream}
           remoteStream={remoteStream}
@@ -372,32 +380,34 @@ function ChatArea() {
         <p className={`text-xl capitalize ${lightTheme ? "" : " dark"}`}>
           {chat_user}
         </p>
+        {isBotChat || isGroupChat ? ""
+          :
+          <div className="flex gap-5 ml-auto ">
 
-        <div className="flex gap-5 ml-auto ">
+            <div
+              onClick={() => { CALL_TYPE.current = SCREEN_SHARE; makeCall() }}
+              title="share screen"
+              className=" w-8 p-2  rounded-full  bg-bg-primary text-xl font-bold cursor-pointer">
+              <img src={screen_share_icon} alt="screen share icon" />
+            </div>
 
-          <div
-            onClick={() => { CALL_TYPE.current = SCREEN_SHARE; makeCall() }}
-            title="share screen"
-            className=" w-8 p-2  rounded-full  bg-bg-primary text-xl font-bold cursor-pointer">
-            <img src={screen_share_icon} alt="screen share icon" />
+            <div
+              onClick={() => { CALL_TYPE.current = VOICE; makeCall() }}
+              title="voice call"
+              className=" w-8 p-2  rounded-full  bg-bg-primary text-xl font-bold cursor-pointer">
+              <img src={voice_call_icon} alt="voice call icon" />
+            </div>
+
+            <div
+              onClick={() => { CALL_TYPE.current = VIDEO; makeCall() }}
+              title="video call"
+              className=" w-8 p-2 rounded-full  bg-bg-primary text-xl font-bold ml-auto cursor-pointer">
+              <img src={video_call_icon} alt="video call icon" />
+            </div>
+
           </div>
 
-          <div
-            onClick={() => { CALL_TYPE.current = VOICE; makeCall() }}
-            title="voice call"
-            className=" w-8 p-2  rounded-full  bg-bg-primary text-xl font-bold cursor-pointer">
-            <img src={voice_call_icon} alt="voice call icon" />
-          </div>
-
-          <div
-            onClick={() => { CALL_TYPE.current = VIDEO; makeCall() }}
-            title="video call"
-            className=" w-8 p-2 rounded-full  bg-bg-primary text-xl font-bold ml-auto cursor-pointer">
-            <img src={video_call_icon} alt="video call icon" />
-          </div>
-
-        </div>
-      </div>
+        }      </div>
 
       {/* CHATS */}
       <div className={`  flex flex-col-reverse grow gap-2 p-2 pr-3 overflow-scroll hide-myscrollbar shadow-inner  ${lightTheme ? "shadow-slate-300 bg-chat-bg-light" : "  shadow-slate-600 "}`}>
@@ -414,7 +424,6 @@ function ChatArea() {
                 mimetype={message?.media?.mimetype}
                 key={index} />;
             } else {
-              console.log('Other MESSAGE ', message)
               return <MessageOthers
                 hasMedia={message?.hasMedia}
                 fileName={message?.media?.filename}

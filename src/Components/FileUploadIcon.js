@@ -11,11 +11,16 @@ const FileUploadIcon = ({ setSelectedFile }) => {
 
 
     return (
-        <div>
+        <div className=" relative mt-2 mr-4 ">
+            <div className=" absolute inset-0 cursor-pointer"
+                onClick={() => {
+                    alert('This feature has been disabled temporarily')
+                }}
+            ></div>
 
             <input type="file" name="file" id="actual-btn" hidden onChange={handleFileChange} />
             <label htmlFor="actual-btn" className="cursor-pointer " title="upload">
-                <img className=" w-7 mt-1 mr-6" src={fileUpload_Icon} alt="file upload" />
+                <img className=" w-8 " src={fileUpload_Icon} alt="file upload" />
             </label>
 
         </div>

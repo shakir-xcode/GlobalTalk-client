@@ -9,41 +9,32 @@ import { baseURI } from "../api/appApi";
 
 
 function CreateGroups() {
-  console.log('CREATE GROUPS RENDERED...');
   const lightTheme = useSelector((state) => state.themeKey);
   const userData = JSON.parse(localStorage.getItem("userData"));
   const { refresh, setRefresh } = useContext(myContext);
+  const [active, setActive] = useState(true);
   const dispatch = useDispatch();
   const nav = useNavigate();
 
 
   useEffect(() => {
     if (!userData) {
-      console.log("User not Authenticated");
+      console.error("User not Authenticated");
       nav("/");
     }
   })
 
   const user = userData?.data;
   const [groupName, setGroupName] = useState(`${userData?.data.name} Group`);
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
 
   const createGroup = () => {
+    if (!active) return;
     const config = {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
     };
-
+    setActive(false);
     axios.post(
       `${baseURI}/chat/createGroup`,
       {
@@ -52,15 +43,12 @@ function CreateGroups() {
       },
       config
     ).then(() => {
-      // dispatch(refreshSidebarFun());
       setRefresh(!refresh);
-      console.log('here  1')
     })
       .catch(console.log)
       .finally(
         () => {
-          console.log('here  2')
-
+          setActive(true);
           nav("/app/groups");
         }
       )

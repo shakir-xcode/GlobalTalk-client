@@ -6,18 +6,8 @@ import audio_icon from "../Images/audio_icon.svg";
 import "./myStyles.css"
 import { VIDEO, VOICE, SCREEN_SHARE } from "../utility/constants";
 
-const Room = ({
-    myStream,
-    remoteStream,
-    endCall,
-    CALL_TYPE,
-    receiverName,
-    screenSharing
-}) => {
-    console.log('CALL_TYPE : ', CALL_TYPE);
-
+const Room = ({ myStream, remoteStream, endCall, CALL_TYPE, receiverName, screenSharing }) => {
     if (CALL_TYPE === VOICE) {
-        console.log('this is an audio Call ');
         const audioContext = new (window.AudioContext || window?.webkitAudioContext)();
         const audioElement = new Audio();
 
@@ -28,7 +18,6 @@ const Room = ({
 
         audioElement.play();
     }
-
     return (
         <div className="fixed z-20 inset-0 bg-gray-800">
             {!remoteStream ? <DialingScreen endCall={endCall} receiverName={receiverName} screenSharing={screenSharing} />
@@ -46,7 +35,7 @@ const Room = ({
                         <>
                             <div className=" fixed z-20">
                                 <ReactPlayer
-                                    muted
+
                                     playing
                                     height="8rem"
                                     width="7rem"
@@ -55,7 +44,7 @@ const Room = ({
                             </div>
                             <div className=" fixed inset-0 z-10 ">
                                 <ReactPlayer
-                                    muted
+
                                     playing
                                     height="100%"
                                     width="100%"
@@ -68,30 +57,26 @@ const Room = ({
                     {CALL_TYPE === VOICE &&
                         // VOICE CALL
                         <div className="fixed inset-0 grid place-content-center">
-                            <div className=" relative w-32 rounded-xl  p-7" >
-                                <div id="spin-container-1" className="absolute inset-0 border-2 border-bg-primary rounded-[40px] custom-anim-spin"></div>
-                                <div id="spin-container-2" className="absolute inset-0 border-2 border-bg-primary rounded-[40px] custom-anim-spin"></div>
-                                <div id="spin-container-3" className="absolute inset-0 border-2 border-bg-primary rounded-[40px] custom-anim-spin"></div>
+                            <div className=" relative w-32 rounded-xl  p-7 " >
+                                <div id="spin-container-1" className="absolute inset-0 border-2 border-bg-primary rounded-[40px] custom-anim-spin "></div>
+                                <div id="spin-container-2" className="absolute inset-0 border-2 border-bg-primary rounded-[40px] custom-anim-spin "></div>
+                                <div id="spin-container-3" className="absolute inset-0 border-2 border-bg-primary rounded-[40px] custom-anim-spin  "></div>
 
                                 <img src={audio_icon} alt="audio icon" />
                             </div>
                         </div>
                     }
-
                     {CALL_TYPE === SCREEN_SHARE &&
                         <div className=" fixed inset-0 z-10 ">
                             <ReactPlayer
-
                                 playing
                                 height="100%"
                                 width="100%"
                                 url={remoteStream}
                             />
-
                         </div>
                     }
                 </div>
-
             }
         </div>
     );

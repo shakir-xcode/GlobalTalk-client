@@ -16,12 +16,9 @@ import ProfilePlaceholder from "./ProfilePlaceholder";
 import { baseURI } from "../api/appApi";
 
 const icons_style = "w-7 cursor-pointer"
-const shadow = {
-  // boxShadow: '2px 0px 12px rgb(100,100,100)',
-}
 
 function Sidebar() {
-  console.log('SIDEBAR RENDERED...');
+  console.log('.');
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -32,13 +29,9 @@ function Sidebar() {
   const userData = JSON.parse(localStorage.getItem("userData"));
 
   if (!userData) {
-    console.log("User not Authenticated");
+    console.error("User not Authenticated");
     navigate("/");
   }
-
-  // const avatarGenerator = (name) => {
-  //   return `https://ui-avatars.com/api/?name=${name}=true&bold=true&background=e0e0e0&color=3f3e3e`
-  // }
 
   const truncateString = (str, len = 30) => {
     if (!str) return "click to start a conversation";
@@ -79,7 +72,7 @@ function Sidebar() {
   }, [refresh]);
 
   return (
-    <div style={shadow} className=" flex py-2 h-full flex-col gap-2 bg-bg-primary  ">
+    <div className=" flex py-2 h-full flex-col gap-2 bg-bg-primary  ">
 
       {/* TITLE and CREATE GROUP ICON */}
       <div className="flex justify-between mx-3">
@@ -158,7 +151,6 @@ function Sidebar() {
 
       <div className={` flex flex-col gap-2  grow overflow-scroll hide-myscrollbar `}>
         {conversations.map((conversation, index) => {
-          // console.log(conversation?.latestMessage?.content)
           return (
             <div
               key={index}

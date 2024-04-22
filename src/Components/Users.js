@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import Profile_Placeholder from "../Images/profile_placeholder.jpg";
 import "./myStyles.css";
 import Refresh_icon from "../Images/refresh_icon.svg";
 import logo from "../Images/logo.png";
@@ -11,34 +10,28 @@ import { baseURI } from "../api/appApi";
 import ProfilePlaceholder from "./ProfilePlaceholder";
 
 function Users() {
-  console.log('USERS RENDERED...');
-  // const [refresh, setRefresh] = useState(true);
   const { refresh, setRefresh } = useContext(myContext);
   const lightTheme = useSelector((state) => state.themeKey);
   const [users, setUsers] = useState([]);
   const userData = JSON.parse(localStorage.getItem("userData"));
-  // console.log("Data from LocalStorage : ", userData);
   const nav = useNavigate();
 
 
   useEffect(() => {
     if (!userData) {
-      console.log("User not Authenticated");
+      console.error("User not Authenticated");
       nav(-1);
     }
   })
 
   useEffect(() => {
-    console.log("Users refreshed");
     const config = {
       headers: {
         Authorization: `Bearer ${userData?.data.token}`,
       },
     };
     axios.get(`${baseURI}/user/fetchUsers`, config).then((data) => {
-      // console.log("UData refreshed in Users panel ");
       setUsers(data.data);
-      // setRefresh(!refresh);
     });
   }, [refresh]);
 

@@ -6,10 +6,8 @@ import { useSelector } from "react-redux";
 import NavDrawer from "./NavDrawer";
 
 export const myContext = createContext();
-function MainContainer() {
-  console.log('MAIN CONTAINER RENDERED...');
 
-  // const dispatch = useDispatch();
+function MainContainer() {
   const lightTheme = useSelector((state) => state.themeKey);
   const [refresh, setRefresh] = useState(true);
 

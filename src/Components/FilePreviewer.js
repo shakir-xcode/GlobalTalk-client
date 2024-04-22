@@ -50,7 +50,6 @@ const FilePreviewer = ({ selectedFile, setSelectedFile, chatId, syncMsg, lightTh
                 },
             });
 
-            console.log("Response:", response.data);
             syncMsg(response.data);
         } catch (error) {
             console.error("Error uploading image:", error);
