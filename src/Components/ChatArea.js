@@ -20,6 +20,7 @@ import Room from "./Room";
 import voice_call_icon from "../Images/accept_call.svg";
 import { VIDEO, VOICE, SCREEN_SHARE } from "../utility/constants";
 import screen_share_icon from "../Images/screen_share_icon.svg";
+import TemporaryMessage from "./TemporaryMessage";
 
 
 let socket;
@@ -38,6 +39,12 @@ function ChatArea() {
   const [chat_id, chat_user] = dyParams._id.split("&");
   const userData = JSON.parse(localStorage.getItem("userData"));
   const [allMessages, setAllMessages] = useState([]);
+
+  const [temporaryMessage, setTemporaryMessage] = useState(null);
+  const [tempHasMedia, setTempHasMedia] = useState(false);
+  const [tempFilename, setTempFilename] = useState(false);
+  const [tempMimetype, setTempMimetype] = useState(false);
+
   const { refresh, setRefresh } = useContext(myContext);
   const [loaded, setloaded] = useState(false);
   const [botResponse, setBotResponse] = useState(null);
@@ -58,6 +65,7 @@ function ChatArea() {
   const receiverLanguageType = location.state?.receiverLanguageType;
   const webRTCUser = useRef(null);
   const callerName = useRef(null);
+
 
   const messageRoute = `${baseURI}/message/`
 
@@ -90,10 +98,11 @@ function ChatArea() {
       socket.emit("new message", data);
   }
 
-
   const sendMessage = () => {
+    setTemporaryMessage(messageContent);
     sendMessageRequest(messageContent, chat_id)
       .then(({ data }) => {
+        setTemporaryMessage(null);
         setAllMessages([...allMessages, data]);
         if (!isBotChat)
           socket.emit("new message", data);
@@ -149,6 +158,7 @@ function ChatArea() {
 
 
   useEffect(() => {
+    setAllMessages([]);
     socket.emit('join chat', chat_id);
   }, [chat_id])
 
@@ -410,36 +420,52 @@ function ChatArea() {
         }      </div>
 
       {/* CHATS */}
-      <div className={`  flex flex-col-reverse grow gap-2 p-2 pr-3 overflow-scroll hide-myscrollbar shadow-inner  ${lightTheme ? "shadow-slate-300 bg-chat-bg-light" : "  shadow-slate-600 "}`}>
-        {allMessages
-          .slice(0)
-          .reverse()
-          .map((message, index) => {
-            const sender = message.sender;
-            const self_id = userData.data._id;
-            if (sender._id === self_id) {
-              return <MessageSelf message={message.content[userData.data._id]}
-                hasMedia={message?.hasMedia}
-                fileName={message?.media?.filename}
-                mimetype={message?.media?.mimetype}
-                key={index} />;
-            } else {
-              return <MessageOthers
-                hasMedia={message?.hasMedia}
-                fileName={message?.media?.filename}
-                mimetype={message?.media?.mimetype}
-                message={message}
-                myUserId={userData?.data._id}
-                key={index}
-                isBotChat={isBotChat}
-                isGroupChat={isGroupChat}
-                groupSender={message?.sender?.name}
-                receiverId={receiverId}
-                receiverName={chat_user}
-                lightTheme={lightTheme}
-              />
-            }
-          })}
+      <div className={`flex flex-col-reverse grow gap-2 p-2 pr-3 overflow-scroll hide-myscrollbar shadow-inner  ${lightTheme ? "shadow-slate-300 bg-chat-bg-light" : "  shadow-slate-600 "}`}>
+
+        {
+          temporaryMessage ? <TemporaryMessage
+            message={temporaryMessage}
+            hasMedia={tempHasMedia}
+            fileName={tempFilename}
+            mimetype={tempMimetype}
+          />
+            : ""
+        }
+
+        {
+          allMessages.length ?
+            allMessages
+              .slice(0)
+              .reverse()
+              .map((message, index) => {
+                const sender = message.sender;
+                const self_id = userData.data._id;
+                if (sender._id === self_id) {
+                  return <MessageSelf message={message.content[userData.data._id]}
+                    hasMedia={message?.hasMedia}
+                    fileName={message?.media?.filename}
+                    mimetype={message?.media?.mimetype}
+                    key={index} />;
+                } else {
+                  return <MessageOthers
+                    hasMedia={message?.hasMedia}
+                    fileName={message?.media?.filename}
+                    mimetype={message?.media?.mimetype}
+                    message={message}
+                    myUserId={userData?.data._id}
+                    key={index}
+                    isBotChat={isBotChat}
+                    isGroupChat={isGroupChat}
+                    groupSender={message?.sender?.name}
+                    receiverId={receiverId}
+                    receiverName={chat_user}
+                    lightTheme={lightTheme}
+                  />
+                }
+              })
+            :
+            <div className=" w-fit mx-auto  mb-auto mt-auto text-lg md:text-2xl font-bold  text-slate-400">Loading messages...</div>
+        }
       </div>
 
       {/* MESSAGE INPUT */}

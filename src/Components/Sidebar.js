@@ -18,7 +18,6 @@ import { baseURI } from "../api/appApi";
 const icons_style = "w-7 cursor-pointer"
 
 function Sidebar() {
-  console.log('.');
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -150,7 +149,7 @@ function Sidebar() {
 
 
       <div className={` flex flex-col gap-2  grow overflow-scroll hide-myscrollbar `}>
-        {conversations.map((conversation, index) => {
+        {conversations.length > 0 ? conversations.map((conversation, index) => {
           return (
             <div
               key={index}
@@ -189,8 +188,11 @@ function Sidebar() {
 
             </div>
           );
+        })
+          :
+          <div className=" z-50 w-fit mx-auto mb-auto mt-auto text-lg md:text-xl font-semibold  text-slate-200">Loading conversations...</div>
 
-        })}
+        }
       </div>
     </div>
   );
