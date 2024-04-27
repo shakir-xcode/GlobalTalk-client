@@ -99,6 +99,8 @@ function ChatArea() {
   }
 
   const sendMessage = () => {
+    if (messageContent.trim().length === 0) return;
+
     setTemporaryMessage(messageContent);
     sendMessageRequest(messageContent, chat_id)
       .then(({ data }) => {
@@ -433,7 +435,7 @@ function ChatArea() {
         }
 
         {
-          allMessages.length ?
+          allMessages.length !== 0 || temporaryMessage !== null ?
             allMessages
               .slice(0)
               .reverse()
@@ -464,7 +466,7 @@ function ChatArea() {
                 }
               })
             :
-            <div className=" w-fit mx-auto  mb-auto mt-auto text-lg md:text-2xl font-bold  text-slate-400">Loading messages...</div>
+            <div className=" w-fit mx-auto  mb-auto mt-auto text-lg md:text-2xl font-bold  text-slate-400">Your messages...</div>
         }
       </div>
 
