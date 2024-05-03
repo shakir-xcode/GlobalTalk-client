@@ -1,5 +1,5 @@
 import React from "react";
-import profilePlaceholder from "../Images/profile_placeholder.jpg";
+import profilePlaceholder from "../Images/profile_placeholder.svg";
 import Dots from "./animations/Dots";
 import declineCall from "../Images/decline_call.svg";
 

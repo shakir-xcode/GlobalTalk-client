@@ -1,5 +1,5 @@
 import React from 'react'
-import profilePlaceholder from "../Images/profile_placeholder.jpg";
+import profilePlaceholder from "../Images/profile_placeholder.svg";
 import { SCREEN_SHARE } from '../utility/constants';
 
 const IncomingCall = ({ endCall, answerCall, CALL_TYPE, callerName, }) => {
