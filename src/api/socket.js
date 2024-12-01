@@ -1,7 +1,6 @@
 import { io } from "socket.io-client";
-//const ENDPOINT = "wss://global-talk-server-ih9q.vercel.app/";
-const ENDPOINT =  "wss://global-talk-server.vercel.app/"
-//const ENDPOINT = "wss://globaltalk-server.onrender.com";
+//const ENDPOINT =  "wss://global-talk-server.vercel.app/"
+const ENDPOINT = "wss://globaltalk-server.onrender.com";
 // const ENDPOINT = "192.168.43.250:8080";
 
 
