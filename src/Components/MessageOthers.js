@@ -12,7 +12,7 @@ function MessageOthers(props) {
   return (
     <div>
 
-      <div className=" w-fit max-w-[350px] ml-6 mr-10  ">
+      <div className=" w-fit max-w-[550px] ml-6 mr-10  ">
         {
           (props.isBotChat || props.isGroupChat) ?
             ((props.hasMedia) ?

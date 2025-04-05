@@ -192,7 +192,7 @@ function Sidebar() {
         })
           :
           <div className=" flex items-center gap-3 z-50 w-fit mx-auto mb-auto mt-auto text-lg md:text-xl font-semibold text-slate-200">Loading conversations 
- CircularLoading />
+ <CircularLoading />
 </div>
 
         }

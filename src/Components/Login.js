@@ -6,6 +6,7 @@ import Toaster from "./Toaster";
 import DropDown from "./dropdown/DropDown";
 import { baseURI } from "../api/appApi";
 import CircularLoading from "./CircularLoading";
+import {sendQuery} from "../utility/chatbot";
 
 function Login() {
   const userData = JSON.parse(localStorage.getItem("userData"));

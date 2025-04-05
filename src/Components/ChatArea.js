@@ -36,7 +36,8 @@ function ChatArea() {
   const lightTheme = useSelector((state) => state.themeKey);
   const [messageContent, setMessageContent] = useState("");
   const dyParams = useParams();
-  const [chat_id, chat_user] = dyParams._id.split("&");
+  const [chat_id, chat_user] = dyParams._id?.split("&");
+
   const userData = JSON.parse(localStorage.getItem("userData"));
   const [allMessages, setAllMessages] = useState([]);
 
@@ -46,6 +47,7 @@ function ChatArea() {
   const [tempMimetype, setTempMimetype] = useState(false);
 
   const { refresh, setRefresh } = useContext(myContext);
+ 
   const [loaded, setloaded] = useState(false);
   const [botResponse, setBotResponse] = useState(null);
   const [socketConnectionStatus, setSocketConnectionStatus] = useState(false);
