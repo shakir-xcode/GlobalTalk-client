@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 import Toaster from "./Toaster";
 import DropDown from "./dropdown/DropDown";
 import { baseURI } from "../api/appApi";
+import CircularLoading from "./CircularLoading";
 
 function Login() {
   const userData = JSON.parse(localStorage.getItem("userData"));
 
-  const [showlogin, setShowLogin] = useState(false);
+  const [showlogin, setShowLogin] = useState(true);
   const [data, setData] = useState({
     name: "", email: "", password: "",
     userLanguage: {
@@ -35,7 +36,17 @@ function Login() {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const loginHandler = async (e) => {
+
+  const loginHandler = async (guest=false) => {
+      if (guest === false) {
+	if(data.name.trim()=== "" || data.password.trim() === "") return;
+      }
+
+    const guestData = {
+		name: "john doe",
+		password: "pass"
+	}
+	
     setLoading(true);
     try {
       const config = {
@@ -46,7 +57,7 @@ function Login() {
 
       const response = await axios.post(
         `${baseURI}/user/login/`,
-        data,
+        guest? guestData : data,
         config
       );
       setLogInStatus({ msg: "Success", key: Math.random() });
@@ -66,6 +77,8 @@ function Login() {
 
   // SIGN UP 
   const signUpHandler = async () => {
+    if(data.name.trim()=== "" || data.email.trim() === "" || data.password.trim() === "" || data.userLanguage.name === null) return;
+
     setLoading(true);
     try {
       const config = {
@@ -143,12 +156,22 @@ function Login() {
                 />
               </div>
               {/* </form> */}
+		<div className="flex gap-4 ">
               <button
-                className="border border-bg-primary font-semibold rounded-md text-bg-primary px-3 py-1.5 hover:bg-bg-primary hover:text-text-primary transition self-center"
-                onClick={loginHandler}
+                className=" flex gap-3 items-center border border-bg-primary font-semibold rounded-md text-bg-primary px-3 py-1.5 hover:bg-slate-100  transition self-center"
+                onClick={() => loginHandler()}
               >
                 Login
+		{loading && <CircularLoading />}
               </button>
+
+		      <button
+                className=" flex gap-3 items-center border border-bg-primary font-semibold rounded-md text-bg-primary px-3 py-1.5 hover:bg-slate-100  transition self-center"
+                onClick={() => loginHandler(true)}
+              >
+                Guest Login
+              </button>
+		</div>
             </div>
             <p className="text-bg-primary">
               Don't have an Account ?{" "}
@@ -210,10 +233,10 @@ function Login() {
 
                 {/* </form> */}
                 <button
-                  className="border border-bg-primary font-semibold rounded-md text-bg-primary px-3 py-1.5 hover:bg-bg-primary hover:text-text-primary transition self-center"
+                  className=" flex items-center gap-3 border border-bg-primary font-semibold rounded-md text-bg-primary px-3 py-1.5 hover:bg-slate-100 transition self-center"
                   onClick={signUpHandler}
                 >
-                  SIGN UP
+                  SIGN UP {loading && <CircularLoading />}
                 </button>
               </div>
             </form>

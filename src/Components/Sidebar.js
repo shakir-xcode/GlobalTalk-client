@@ -14,6 +14,7 @@ import axios from "axios";
 import { myContext } from "./MainContainer";
 import ProfilePlaceholder from "./ProfilePlaceholder";
 import { baseURI } from "../api/appApi";
+import CircularLoading from "./CircularLoading";
 
 const icons_style = "w-7 cursor-pointer"
 
@@ -190,7 +191,9 @@ function Sidebar() {
           );
         })
           :
-          <div className=" z-50 w-fit mx-auto mb-auto mt-auto text-lg md:text-xl font-semibold  text-slate-200">Loading conversations...</div>
+          <div className=" flex items-center gap-3 z-50 w-fit mx-auto mb-auto mt-auto text-lg md:text-xl font-semibold text-slate-200">Loading conversations 
+ CircularLoading />
+</div>
 
         }
       </div>

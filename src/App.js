@@ -11,6 +11,11 @@ import Groups from "./Components/Groups";
 import { useSelector } from "react-redux";
 import IncomingCall from "./Components/IncomingCall";
 import Room from "./Components/Room";
+import {ping} from "./utility/pingServer";
+import {baseURI} from "./api/appApi";
+
+
+ping(baseURI);
 
 function App() {
   const lightTheme = useSelector((state) => state.themeKey);
